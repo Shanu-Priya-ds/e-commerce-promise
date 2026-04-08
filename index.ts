@@ -1,4 +1,4 @@
-import { fetchProductCatalog, fetchProductReviews , fetchSalesReport, type Product } from "./apiSimulator.js";
+import { DataError, fetchProductCatalog, fetchProductReviews , fetchSalesReport, NetworkError, type Product } from "./apiSimulator.js";
 
 function handleApi(){
     fetchProductCatalog().then((productList)=>{
@@ -24,10 +24,19 @@ function handleApi(){
         console.log(report);
     })
     .catch((error)=>{
+        if(error instanceof NetworkError){
+             console.error(`${error.name}: ${error.message}`);
+        }else if(error instanceof DataError){
+            console.error(`${error.name}: ${error.message}`);
+        }else if(error instanceof Error){
+             console.log(`Error: ${error.message}`);
+        }else{
+            console.log(`Unknown Error: ${error.message}`);
+        }
         console.error(error.message);
     })
     .finally(()=>{
-        console.log("All API calls were attempted")
+        console.log("All API calls have been attempted.")
     })
 }
 

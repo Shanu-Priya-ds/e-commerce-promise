@@ -30,48 +30,29 @@ interface productReviewResponse {
  * sample response data
  */
 //array of product list
-let productList: Product[] = [{ id: 1, name: "Laptop", price: 1200 },
-{ id: 2, name: "Headphones", price: 200 }
-];
+let productList: Product[] = [ { id: 1, name: "Laptop", price: 1200 },
+                               { id: 2, name: "Headphones", price: 200 }
+                            ];
 //array of productReview object for different products 
-let prodReviewsObjs: productReviewResponse[] = [{
+let prodReviewsObjs: productReviewResponse[] = [
+    {
     "productId": 1,
     "reviews": [
-        {
-            id: 1,
-            reviewer: "Nimal",
-            rating: 5,
-            comment: "Amazing quality!",
-            createdAt: "2024-03-01T10:00:00Z"
-        },
-        {
-            id: 2,
-            reviewer: "Nishan",
-            rating: 4,
-            comment: "Good value for money.",
-            createdAt: "2024-03-02T14:20:00Z"
-        }
-    ]
-}, {
+                 { id: 1, reviewer: "Nimal", rating: 5, comment: "Amazing quality!", createdAt: "2024-03-01T10:00:00Z"},
+                 { id: 2, reviewer: "Nishan", rating: 4, comment: "Good value for money.", createdAt: "2024-03-02T14:20:00Z"}
+                ]
+    },
+    {
     "productId": 2,
     "reviews": [
-        {
-            id: 1,
-            reviewer: "Nihi",
-            rating: 5,
-            comment: "Amazing quality!",
-            createdAt: "2022-03-01T10:00:00Z"
-        },
-        {
-            id: 2,
-            reviewer: "Nithi",
-            rating: 4,
-            comment: "Good value for money.",
-            createdAt: "2022-03-02T14:20:00Z"
-        }
-    ]
-}]
+                {id: 1, reviewer: "Nihi", rating: 5, comment: "Amazing quality!", createdAt: "2022-03-01T10:00:00Z"},
+                {id: 2, reviewer: "Nithi", rating: 4, comment: "Good value for money.", createdAt: "2022-03-02T14:20:00Z"}
+               ]
+    }
+];
 
+let report:SalesReport = { totalSales: 100, averagePrice: 45, unitsSold: 50 };
+               
 /**
  * Simulation function to fetch the product lists
  * @returns Promise object with Arary of Product
@@ -83,7 +64,7 @@ export const fetchProductCatalog = (): Promise<Product[]> => {
             if (Math.random() < 0.8) {
                 resolve(productList);
             } else {
-                reject("Failed to fetch product catalog");
+                reject(new NetworkError("Failed to fetch product catalog"));
             }
         }, 1000);
     });
@@ -98,10 +79,18 @@ export const fetchProductCatalog = (): Promise<Product[]> => {
 export const fetchProductReviews = (productId: number): Promise<ProductReview[]> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            if (productId) {
-                resolve(getProductReviewsFromList(productId));
+             if (Math.random() < 0.8) {
+                if(productId){
+                    let reviews:ProductReview[]=  getProductReviewsFromList(productId);
+                    if(reviews!=null && !Array.isArray(reviews)){
+                        reject(new DataError("Reviews must be returned in array."));
+                    }
+                    resolve(reviews);
+                }else{
+                     reject(new DataError("Product Id is empty"));
+                }
             } else {
-                reject("Failed to fetch sales report.");
+                reject(new NetworkError("Failed to fetch sales report."));
             }
 
 
@@ -125,11 +114,27 @@ export const fetchSalesReport = (): Promise<SalesReport> => {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             if (Math.random() < 0.8) {
-                resolve({ totalSales: 100, averagePrice: 45, unitsSold: 50 });
+                if(typeof (report.averagePrice)!=="number" || typeof (report.totalSales)!=="number" || typeof (report.unitsSold)!=="number"){
+                    reject("Report values must be in numbers.")
+                }
+               resolve(report);
             } else {
-                reject("Failed to ferch sales report");
+                reject(new NetworkError("Failed to fetch sales report"));
             }
         });
     });
+}
 
+export class NetworkError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "NetworkError";
+    }
+}
+
+export class DataError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "DataError";
+    }
 }
