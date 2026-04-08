@@ -23,6 +23,12 @@ function handleApi(){
         console.log("Sales Report");
         console.log(report);
     })
+    .catch((error)=>{
+        console.error(error.message);
+    })
+    .finally(()=>{
+        console.log("All API calls were attempted")
+    })
 }
 
 handleApi();
